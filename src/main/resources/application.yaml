@@ -1,0 +1,29 @@
+# 应用名称
+spring:
+  application:
+    name: online-chat
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: chengxiang
+    url: jdbc:mysql://120.26.213.250:3306/chat?serverTimeZone=Shanghai
+    hikari:
+      connection-timeout: 60000
+      validation-timeout: 3000
+      idle-timeout: 60000
+      login-timeout: 5
+      max-lifetime: 60000
+      maximum-pool-size: 10
+      minimum-idle: 10
+      read-only: false
+
+server:
+  port: 3333
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+
+
+
+
+
