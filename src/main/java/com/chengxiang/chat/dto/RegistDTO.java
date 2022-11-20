@@ -24,4 +24,7 @@ public class RegistDTO {
     private String sex;
 
     private String phone;
+
+    @NotBlank
+    private String captcha;
 }

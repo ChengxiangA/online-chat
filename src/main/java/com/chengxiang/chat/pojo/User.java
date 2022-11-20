@@ -1,10 +1,10 @@
 package com.chengxiang.chat.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -14,6 +14,7 @@ import java.util.Date;
 @Data
 @TableName("USERS")
 public class User {
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     private String username;

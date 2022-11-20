@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2022/11/17 14:26
  */
 @RestController
-public class SendMessageController {
+public class MessageController {
+
 
 }

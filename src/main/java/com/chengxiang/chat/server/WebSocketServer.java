@@ -1,16 +1,19 @@
 package com.chengxiang.chat.server;
 
+import com.chengxiang.chat.dao.MessageMapper;
 import com.chengxiang.chat.pojo.Message;
 import com.chengxiang.chat.util.MessageDecoder;
 import com.chengxiang.chat.util.MessageEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,9 +25,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Slf4j
 public class WebSocketServer {
+
+    private static MessageMapper messageMapper;
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    @Autowired
+    public void messageMapper(MessageMapper messageMapper) {
+        this.messageMapper = messageMapper;
+    }
+    // 在线人数
     private static int onlineCount = 0;
 
-    //
+    // 用于主动推送消息会话
     private Session session;
 
     // 记录所有在线用户
@@ -45,10 +58,12 @@ public class WebSocketServer {
     public void onOpen(Session session,@PathParam("username") String username) {
         this.session = session;
         this.username = username;
-        log.info("用户{}进入聊天室", username);
+        addOnlineCount();
+        log.info("用户{}进入聊天室,当前在线人数{}人", username,getOnlineCount());
         websocketMap.put(username, this);
         try {
-            Message message = SomeOneComeIn(username);
+            Message message = SomeOneComeIn();
+            messageMapper.insert(message);
             sendMessage(message);
         } catch (IOException | EncodeException e) {
             log.error("WEBSOCKET IO异常");
@@ -58,8 +73,11 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(Message message) {
         log.info("收到来自窗口"+ this.username + "的信息:" + message);
+        log.info(this + "");
         try {
             message.setFrom(this.username);
+            message.setDate(new Date());
+            messageMapper.insert(message);
             sendMessage(message);
         } catch (IOException | EncodeException e) {
             log.error("WEBSOCKET IO异常");
@@ -68,9 +86,11 @@ public class WebSocketServer {
 
     @OnClose
     public void onClose() throws EncodeException, IOException {
-        log.info("用户" + this.username + "离开了");
+        subOnlineCount();
+        log.info("用户{}离开聊天室,当前在线人数{}人", username,getOnlineCount());
         websocketMap.remove(this.username);
-        Message message = SomeOneOut(this.username);
+        Message message = SomeOneOut();
+        messageMapper.insert(message);
         sendMessage(message);
     }
 
@@ -91,11 +111,7 @@ public class WebSocketServer {
 
     public void send2All(Message message) throws IOException, EncodeException {
         for (WebSocketServer ws : websocketMap.values()) {
-            // 测试
             ws.getSession().getBasicRemote().sendObject(message);
-//            if(this != ws) {
-//                ws.send2One(ws.getSession(),message);
-//            }
         }
     }
 
@@ -107,18 +123,18 @@ public class WebSocketServer {
         }
     }
 
-    public Message SomeOneComeIn(String username) {
+    public Message SomeOneComeIn() {
         Message message = new Message();
-        message.setMessage("用户" + username + "进入聊天室");
+        message.setMessage("用户" + this.username + "进入聊天室,当前在线人数" + getOnlineCount() + "人");
         message.setFrom("888");
         message.setTo("*");
         message.setDate(new Date());
         return message;
     }
 
-    public Message SomeOneOut(String username) {
+    public Message SomeOneOut() {
         Message message = new Message();
-        message.setMessage("用户" + username + "离开聊天室");
+        message.setMessage("用户" + this.username + "离开聊天室,当前在线人数" + getOnlineCount() + "人");
         message.setFrom("888");
         message.setTo("*");
         message.setDate(new Date());
@@ -134,4 +150,15 @@ public class WebSocketServer {
         return message;
     }
 
+    public static synchronized int getOnlineCount() {
+        return onlineCount;
+    }
+
+    public static synchronized int addOnlineCount() {
+        return onlineCount ++;
+    }
+
+    public static synchronized int subOnlineCount() {
+        return onlineCount --;
+    }
 }
