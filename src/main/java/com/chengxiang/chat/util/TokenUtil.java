@@ -1,6 +1,7 @@
 package com.chengxiang.chat.util;
 
 
+import com.chengxiang.chat.exception.BizException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -19,6 +20,13 @@ public class TokenUtil {
     private static final long EXPIRE_TIME = 60 * 60 * 1000; // 1小时
 
     private static  final String TOKEN_SECRET = "chengxiangchengxiangchengxiangchengxiangchengxiangchengxiang";
+
+    // 获取测试token
+//eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImFkbWluQHFxLmNvbSIsImlhdCI6MTY2OTc4MzM2OSwiZXhwIjoxNjczMzgzMzY5fQ.bHMa-Rnq36a-SYfCo8oSVWu-DZv7_9KhXlkrkDYYB4s
+//    public static void main(String[] args) {
+//        String token = getToken("admin@qq.com");
+//        System.out.println(token);
+//    }
 
     public static String getToken(String username) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -63,7 +71,13 @@ public class TokenUtil {
     }
 
     public static Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(TOKEN_SECRET).build().parseClaimsJws(token).getBody();
+        Claims claims = null;
+        try {
+             claims = Jwts.parserBuilder().setSigningKey(TOKEN_SECRET).build().parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            throw new BizException("无效Token，请重新获取！！");
+        }
+        return claims;
     }
 
     public static String getUsernameFromHeader(HttpServletRequest request) {

@@ -13,7 +13,6 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,8 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketServer {
 
     private static MessageMapper messageMapper;
-
-    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     public void messageMapper(MessageMapper messageMapper) {
@@ -75,8 +72,8 @@ public class WebSocketServer {
         log.info("收到来自窗口"+ this.username + "的信息:" + message);
         log.info(this + "");
         try {
-            message.setFrom(this.username);
-            message.setDate(new Date());
+            message.setFromWho(this.username);
+            message.setCreateTime(new Date());
             messageMapper.insert(message);
             sendMessage(message);
         } catch (IOException | EncodeException e) {
@@ -102,7 +99,7 @@ public class WebSocketServer {
 
     // 根据用户找到指定发送人
     public void send2One(Message message) throws IOException, EncodeException {
-        WebSocketServer webSocketServer = websocketMap.get(message.getTo());
+        WebSocketServer webSocketServer = websocketMap.get(message.getToWho());
         Session session = webSocketServer.getSession();
         session.getBasicRemote().sendObject(message);
         // 确保自己的消息发送成功
@@ -116,7 +113,7 @@ public class WebSocketServer {
     }
 
     public void sendMessage(Message message) throws EncodeException, IOException {
-        if(message.getTo().equals("*")) {
+        if(message.getToWho().equals("*")) {
             send2All(message);
         } else {
             send2One(message);
@@ -126,27 +123,27 @@ public class WebSocketServer {
     public Message SomeOneComeIn() {
         Message message = new Message();
         message.setMessage("用户" + this.username + "进入聊天室,当前在线人数" + getOnlineCount() + "人");
-        message.setFrom("888");
-        message.setTo("*");
-        message.setDate(new Date());
+        message.setFromWho("888");
+        message.setToWho("*");
+        message.setCreateTime(new Date());
         return message;
     }
 
     public Message SomeOneOut() {
         Message message = new Message();
         message.setMessage("用户" + this.username + "离开聊天室,当前在线人数" + getOnlineCount() + "人");
-        message.setFrom("888");
-        message.setTo("*");
-        message.setDate(new Date());
+        message.setFromWho("888");
+        message.setToWho("*");
+        message.setCreateTime(new Date());
         return message;
     }
 
     public Message error() {
         Message message = new Message();
         message.setMessage("服务器异常，请稍后再试！");
-        message.setFrom("888");
-        message.setTo("*");
-        message.setDate(new Date());
+        message.setFromWho("888");
+        message.setToWho("*");
+        message.setCreateTime(new Date());
         return message;
     }
 

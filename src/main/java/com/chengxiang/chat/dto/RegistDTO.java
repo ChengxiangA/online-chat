@@ -2,6 +2,7 @@ package com.chengxiang.chat.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -10,20 +11,11 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class RegistDTO {
-    @NotBlank
+    @Email(message = "用户名不合法")
     private String username;
 
     @NotBlank
     private String password;
-
-    @NotBlank
-    private String name;
-
-    private Integer age;
-
-    private String sex;
-
-    private String phone;
 
     @NotBlank
     private String captcha;

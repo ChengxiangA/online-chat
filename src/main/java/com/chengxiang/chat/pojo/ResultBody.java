@@ -39,4 +39,8 @@ public class ResultBody<T> {
         return new ResultBody(200,message);
     }
 
+    public static <T> ResultBody success(String message,T data) {
+        return new ResultBody(200,message,data);
+    }
+
 }

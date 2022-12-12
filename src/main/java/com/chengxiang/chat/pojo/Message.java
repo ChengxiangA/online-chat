@@ -16,17 +16,13 @@ import java.util.Date;
 @Data
 @TableName("MESSAGE")
 public class Message {
-    @TableField(value = "from_who")
-    private String from;
+    private String fromWho;
 
-    @TableField(value = "to_who")
-    private String to;
+    private String toWho;
 
     private String message;
 
-    @JsonProperty("time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(value = "create_time")
-    private Date date;
+    private Date createTime;
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.Email;
 import java.util.Date;
 
 /**
@@ -21,11 +22,11 @@ public class User {
 
     private String password;
 
-    private String name;
+    private String nickName;
 
-    private Integer age;
+    private String avatar;
 
-    private String sex;
+    private Integer sex;
 
     private String phone;
 

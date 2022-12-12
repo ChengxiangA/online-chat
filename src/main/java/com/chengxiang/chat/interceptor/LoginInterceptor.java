@@ -1,10 +1,12 @@
 package com.chengxiang.chat.interceptor;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.chengxiang.chat.pojo.ResultBody;
 import com.chengxiang.chat.util.TokenUtil;
+import com.chengxiang.chat.util.UserInfoUtil;
+import com.chengxiang.chat.util.WhiteListUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,8 +20,15 @@ import java.io.PrintWriter;
  * @date 2022/11/17 17:37
  */
 public class LoginInterceptor implements HandlerInterceptor {
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 是否放行路径
+        if(WhiteListUtil.isAllCanGoPath(request.getServletPath())) {
+            return true;
+        }
         String authorization = request.getHeader("Authorization");
         // 如果没有携带Token请求头
         if(StringUtils.isEmpty(authorization) || !TokenUtil.verifyToken(authorization)) {
@@ -33,6 +42,9 @@ public class LoginInterceptor implements HandlerInterceptor {
             writer.close();
             return false;
         }
+        // Token验证通过
+        String username = TokenUtil.getUsernameFromToken(authorization);
+        UserInfoUtil.userLogin(username);
         return true;
     }
 
