@@ -23,17 +23,33 @@ spring:
   redis:
     host: 120.26.213.250
     port: 6379
+    password: chengxiang...4
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
 server:
   port: 3333
+  servlet:
+    context-path: /
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+# 百度API授权码
+baidu:
+  ak: wcBxXgflpD2SCqy1bMaj2FGvLoxw93nM
 
-
+upload:
+  local:
+    # 文件存储地址服务器
+#    url: http://120.26.213.250
+    url: http://127.0.0.1/
+    # 文件存储路径
+#    path: /home/chat/upload
+    path: E:/images
 
 
 
